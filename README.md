@@ -2,7 +2,7 @@
 
 You know the feeling - a "small" change to how data is stored cascades into controllers, services, tests, DTOs. Business logic leaks into HTTP handlers. A feature that should take an hour takes a day, because everything is tangled with everything else.
 
-Hexagonal architecture (aka. ports & adapters) solves that. The **core domain owns the contracts** - it defines interfaces (ports) describing what it needs. Infrastructure and transports implement those contracts (adapters). Arrows point inward, not outward (or all over the place)
+Hexagonal architecture (aka. ports & adapters) solves that. The **core domain owns the contracts** - it defines interfaces (ports) describing what it needs. Infrastructure and transports implement those contracts (adapters). Arrows point inward, not outward (or all over the place).
 
 **What you gain:**
 
@@ -15,44 +15,83 @@ The upfront structure pays off fast - business logic stays clean and readable fo
 
 ## Folder Structure
 
+Code is organized by **feature** (bounded context), not by technical role. Everything related to a feature lives together.
+
 ```
-/alarms                   # Bounded context/feature. All code is co-located by feature
-├── /application          # App services, handlers, commands. Talks to infra via ports
-├── /domain               # Models, value objects, events, factories. Core business
-├── /infrastructure       # DB, brokers, external systems. Implements ports (adapters)
-└── /presenters
-    ├── /http             # Controllers, DTOs - REST/HTTP API
-    └── /cli              # Commands, args - CLI (e.g. `alarms create`); same app, different entry
+/src
+├── /common               # Shared types and interfaces used across features
+├── /core                 # Global infrastructure bootstrap (connections, providers)
+└── /<feature>            # One folder per bounded context
+    ├── /application      # Use cases, commands, ports
+    ├── /domain           # Models, value objects, events, factories
+    ├── /infrastructure   # Adapters implementing the ports
+    └── /presenters
+        ├── /http         # REST controllers, DTOs
+        └── /cli          # CLI commands; same app layer, different entry point
 ```
 
 ## /application
 
-The application layer orchestrates use cases. It holds services, command/query handlers, and other app-specific logic. It never depends on infrastructure or presentation details. Instead, it defines **ports** (interfaces) that describe what it needs (e.g. "save an alarm", "publish an event"), and expects the infrastructure layer to fulfill them. Commands and queries live here too, acting as the data contracts between presenters and application logic.
+Orchestrates use cases. Holds services, command/query handlers, and app-specific logic. Never depends on infrastructure or presentation details. Instead, it defines **ports** that describe what it needs, and expects the infrastructure layer to fulfill them.
 
 ```
 /application
-    /commands
-    /ports
+    /commands   # Data contracts between presenters and application logic
+    /ports      # Abstractions over external dependencies (repositories, brokers, etc.)
+```
+
+### Ports
+
+Ports are defined as **abstract classes**, not interfaces. In NestJS, interfaces are erased at compile time and can't serve as injection tokens. Abstract classes survive compilation and work as DI tokens at runtime.
+
+```ts
+export abstract class AlarmRepository {
+  abstract findAll(): Promise<Alarm[]>;
+  abstract save(alarm: Alarm): Promise<Alarm>;
+}
 ```
 
 ## /domain
 
-The purest layer - no frameworks, no HTTP, no database. Contains domain **models** (e.g. `Alarm`), **value objects** (e.g. `AlarmSeverity`), **domain events**, and **factories**. Value objects are immutable and compared by value, not identity. This layer encodes the business rules that never change regardless of how the app is delivered or where data is stored.
+The purest layer - no frameworks, no HTTP, no database. Contains domain **models**, **value objects**, **domain events**, and **factories**. Value objects are immutable and compared by value, not identity. This layer encodes business rules that never change regardless of how the app is delivered or where data is stored.
 
 ## /infrastructure
 
-Implements the ports defined by the application layer via **adapters** (e.g. a `TypeORM` repository implementing `IAlarmRepository`). This is where database access, message brokers, HTTP clients, and other external systems live. Nothing in domain or application should import from here.
+Implements the ports via **adapters**. Multiple adapters can implement the same port - for example, one backed by a real database and one in-memory for local dev or testing. Each adapter is self-contained with its own entities, repositories, and mappers.
 
 ```
-/infrastructure       # DB, brokers, external systems. Implements ports (adapters)
+/infrastructure
     /persistence
+        /<driver-a>     # e.g. TypeORM adapter
+            /entities
+            /repositories
+            /mappers
+        /<driver-b>     # e.g. in-memory adapter
+            /entities
+            /repositories
+            /mappers
 ```
+
+### Mappers
+
+Each adapter owns a mapper that converts between its persistence model and the domain model. This keeps domain objects free of ORM annotations or storage concerns.
+
+```ts
+class AlarmMapper {
+  static toDomain(entity: AlarmEntity): Alarm { ... }
+  static toPersistence(alarm: Alarm): AlarmEntity { ... }
+}
+```
+
+### Swapping adapters
+
+All adapters implementing the same port export the same token. The application layer never knows which one it received - swapping infrastructure requires no domain or application code changes.
 
 ## /presenters
 
 The delivery layer - how the outside world talks to the application. Organized by transport:
 
 - `/http` - REST controllers, DTOs with validation decorators, HTTP-specific error handling.
-- `/cli` - CLI commands, argument parsing. Same application layer underneath, different entry point.
+- `/cli` - CLI commands and argument parsing. Same application layer underneath, different entry point.
 
-DTOs belong here, not in application, because they represent the shape of data for a specific transport (e.g. HTTP). Other transports like gRPC would have their own DTOs in their own subfolder.
+DTOs belong here, not in application, because they represent the shape of data for a specific transport. A gRPC transport would have its own DTOs in its own subfolder.
