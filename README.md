@@ -1,6 +1,8 @@
 # Hexagonal Architecture
 
-Hexagonal architecture (aka. ports & adapters) main idea is that **core domain owns the contracts** - it defines interfaces (ports) describing what it needs. Infrastructure and transports implement those contracts (adapters). Arrows point inward, not outward.
+You know the feeling - a "small" change to how data is stored cascades into controllers, services, tests, DTOs. Business logic leaks into HTTP handlers. A feature that should take an hour takes a day, because everything is tangled with everything else.
+
+Hexagonal architecture (aka. ports & adapters) solves that. The **core domain owns the contracts** - it defines interfaces (ports) describing what it needs. Infrastructure and transports implement those contracts (adapters). Arrows point inward, not outward (or all over the place)
 
 **What you gain:**
 
