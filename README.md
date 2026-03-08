@@ -1,5 +1,18 @@
 # Hexagonal Architecture
 
+## What and Why
+
+Hexagonal architecture (aka. ports & adapters) inverts that. The **core domain owns the contracts** - it defines interfaces (ports) describing what it needs. Infrastructure and transports implement those contracts (adapters). Arrows point inward, not outward.
+
+**What you gain:**
+
+- **Swap infrastructure freely** - replace Postgres with Mongo, REST with gRPC, without touching a line of business logic
+- **Test business logic in isolation** - no DB, no HTTP, no mocks of external systems; just pure functions and interfaces
+- **Focus on what matters** - domain and application layers stay clean and expressive, free from framework noise
+- **Resilience to change** - external systems evolve; your core doesn't have to
+
+The upfront structure pays off fast - business logic stays clean and readable for years, and the codebase grows without becoming a pile of tech debt.
+
 ## Folder Structure
 
 ```

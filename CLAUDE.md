@@ -28,7 +28,3 @@
 - ALWAYS use barrel imports. `index.ts` must only export same-folder files/folders, never `../` or nested paths
 - All IDs must be converted to string. typeorm does it for int8, we do it for int4, int2, etc.
 - Always use z.strictObject instead of z.object in DTOs
-
-### This Project (Voto a Voto API)
-
-- No explicit `name` on `@Column`/`@PrimaryColumn`/`@PrimaryGeneratedColumn`/`@CreateDateColumn`/`@JoinColumn` — `SnakeNamingStrategy` handles it. Only `@Entity` and `@JoinTable` need explicit names.
