@@ -1,8 +1,6 @@
 # Hexagonal Architecture
 
-## What and Why
-
-Hexagonal architecture (aka. ports & adapters) inverts that. The **core domain owns the contracts** - it defines interfaces (ports) describing what it needs. Infrastructure and transports implement those contracts (adapters). Arrows point inward, not outward.
+Hexagonal architecture (aka. ports & adapters) main idea is that **core domain owns the contracts** - it defines interfaces (ports) describing what it needs. Infrastructure and transports implement those contracts (adapters). Arrows point inward, not outward.
 
 **What you gain:**
 
@@ -41,7 +39,7 @@ Implements the ports defined by the application layer via **adapters** (e.g. a `
 
 The delivery layer - how the outside world talks to the application. Organized by transport:
 
-- `http/` - REST controllers, DTOs with validation decorators, HTTP-specific error handling.
-- `cli/` - CLI commands, argument parsing. Same application layer underneath, different entry point.
+- `/http` - REST controllers, DTOs with validation decorators, HTTP-specific error handling.
+- `/cli` - CLI commands, argument parsing. Same application layer underneath, different entry point.
 
 DTOs belong here, not in application, because they represent the shape of data for a specific transport (e.g. HTTP). Other transports like gRPC would have their own DTOs in their own subfolder.
