@@ -29,6 +29,12 @@ The upfront structure pays off fast - business logic stays clean and readable fo
 
 The application layer orchestrates use cases. It holds services, command/query handlers, and other app-specific logic. It never depends on infrastructure or presentation details. Instead, it defines **ports** (interfaces) that describe what it needs (e.g. "save an alarm", "publish an event"), and expects the infrastructure layer to fulfill them. Commands and queries live here too, acting as the data contracts between presenters and application logic.
 
+```
+/application
+    /commands
+    /ports
+```
+
 ## /domain
 
 The purest layer - no frameworks, no HTTP, no database. Contains domain **models** (e.g. `Alarm`), **value objects** (e.g. `AlarmSeverity`), **domain events**, and **factories**. Value objects are immutable and compared by value, not identity. This layer encodes the business rules that never change regardless of how the app is delivered or where data is stored.
@@ -36,6 +42,11 @@ The purest layer - no frameworks, no HTTP, no database. Contains domain **models
 ## /infrastructure
 
 Implements the ports defined by the application layer via **adapters** (e.g. a `TypeORM` repository implementing `IAlarmRepository`). This is where database access, message brokers, HTTP clients, and other external systems live. Nothing in domain or application should import from here.
+
+```
+/infrastructure       # DB, brokers, external systems. Implements ports (adapters)
+    /persistence
+```
 
 ## /presenters
 
