@@ -25,9 +25,7 @@ Code is organized by **feature** (bounded context), not by technical role. Every
     ├── /application      # Use cases, commands, ports
     ├── /domain           # Models, value objects, events, factories
     ├── /infrastructure   # Adapters implementing the ports
-    └── /presenters
-        ├── /http         # REST controllers, DTOs
-        └── /cli          # CLI commands; same app layer, different entry point
+    └── /presenters       # Delivery layer - how the outside world talks to the app
 ```
 
 ## /application
@@ -89,9 +87,18 @@ All adapters implementing the same port export the same token. The application l
 
 ## /presenters
 
-The delivery layer - how the outside world talks to the application. Organized by transport:
+The delivery layer - how the outside world talks to the application. Organized by transport. DTOs belong here, not in application, because they represent the shape of data for a specific transport. A gRPC transport would have its own DTOs in its own subfolder.
 
-- `/http` - REST controllers, DTOs with validation decorators, HTTP-specific error handling.
-- `/cli` - CLI commands and argument parsing. Same application layer underneath, different entry point.
+```
+/presenters
+    /http   # REST controllers and DTOs with validation decorators
+    /cli    # CLI commands and argument parsing
+```
 
-DTOs belong here, not in application, because they represent the shape of data for a specific transport. A gRPC transport would have its own DTOs in its own subfolder.
+### /http
+
+REST controllers, DTOs with validation decorators, and HTTP-specific error handling. DTOs are transport-specific - they shape data for HTTP and live here, not in the application layer.
+
+### /cli
+
+CLI commands and argument parsing. Same application layer underneath, different entry point. Useful for scripts, migrations, or admin tasks that share the same use cases as the HTTP layer.
