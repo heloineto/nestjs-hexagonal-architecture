@@ -54,7 +54,11 @@ export default defineConfig(
           pattern: '*/infrastructure',
           capture: ['feature'],
         },
-        { type: 'presenters', pattern: '*/presenters', capture: ['feature'] },
+        {
+          type: 'presentation',
+          pattern: '*/presentation',
+          capture: ['feature'],
+        },
       ],
     },
     rules: {
@@ -89,7 +93,7 @@ export default defineConfig(
                 ['application', { feature: '${from.feature}' }],
               ],
             },
-            // infrastructure: implements ports - knows domain and application contracts, never presenters
+            // infrastructure: implements ports - knows domain and application contracts, never presentation
             {
               from: 'infrastructure',
               allow: [
@@ -99,14 +103,14 @@ export default defineConfig(
                 ['infrastructure', { feature: '${from.feature}' }],
               ],
             },
-            // presenters: delivery layer - converts transport input to commands, never touches infrastructure
+            // presentation: delivery layer - converts transport input to commands, never touches infrastructure
             {
-              from: 'presenters',
+              from: 'presentation',
               allow: [
                 'common',
                 ['domain', { feature: '${from.feature}' }],
                 ['application', { feature: '${from.feature}' }],
-                ['presenters', { feature: '${from.feature}' }],
+                ['presentation', { feature: '${from.feature}' }],
               ],
             },
           ],

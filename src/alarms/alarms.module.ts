@@ -1,5 +1,5 @@
 import { DynamicModule, Module, Type } from '@nestjs/common';
-import { AlarmsController } from './presenters/http/alarms.controller';
+import { AlarmsController } from './presentation/http/alarms.controller';
 import { AlarmsService } from './application/alarms.service';
 import { AlarmFactory } from './domain/factories/alarm.factory';
 

@@ -25,7 +25,7 @@ Code is organized by **feature** (bounded context), not by technical role. Every
     ├── /application      # Use cases, commands, ports
     ├── /domain           # Models, value objects, events, factories
     ├── /infrastructure   # Adapters implementing the ports
-    └── /presenters       # Delivery layer - how the outside world talks to the app
+    └── /presentation       # Delivery layer - how the outside world talks to the app
 ```
 
 ## /application
@@ -34,7 +34,7 @@ Orchestrates use cases. Holds services, command/query handlers, and app-specific
 
 ```
 /application
-    /commands   # Data contracts between presenters and application logic
+    /commands   # Data contracts between presentation and application logic
     /ports      # Abstractions over external dependencies (repositories, brokers, etc.)
 ```
 
@@ -93,12 +93,12 @@ class AlarmMapper {
 
 All adapters implementing the same port export the same token. The application layer never knows which one it received - swapping infrastructure requires no domain or application code changes.
 
-## /presenters
+## /presentation
 
 The delivery layer - how the outside world talks to the application. Organized by transport. DTOs belong here, not in application, because they represent the shape of data for a specific transport. A gRPC transport would have its own DTOs in its own subfolder.
 
 ```
-/presenters
+/presentation
     /http   # REST controllers and DTOs with validation decorators
     /cli    # CLI commands and argument parsing
 ```
@@ -120,7 +120,7 @@ CLI commands and argument parsing. Same application layer underneath, different 
 | `domain`         | `common`, same-feature `domain`                                  |
 | `application`    | `common`, same-feature `domain`, `application`                   |
 | `infrastructure` | `common`, same-feature `domain`, `application`, `infrastructure` |
-| `presenters`     | `common`, same-feature `domain`, `application`, `presenters`     |
+| `presentation`   | `common`, same-feature `domain`, `application`, `presentation`   |
 
 No cross-feature imports. Features compose via app module.
 
