@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { CoreModule } from './core/core.module';
 import { ApplicationBootstrapOptions } from './common/interfaces/application-bootstrap-options.interface';
 import { AlarmsInfrastructureModule } from './alarms/infrastructure/alarms-infrastructure.module';
-import { AlarmsModule } from './alarms/application/alarms.module';
+import { AlarmsModule } from './alarms/alarms.module';
 
 @Module({
   imports: [CoreModule],

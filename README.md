@@ -13,6 +13,75 @@ Hexagonal architecture (aka. ports & adapters) solves that. The **core domain ow
 
 The upfront structure pays off fast - business logic stays clean and readable for years, and the codebase grows without becoming a pile of tech debt.
 
+## Onion Architecture vs Hexagonal Architecture
+
+Both patterns solve the same core problem - decoupling business logic from infrastructure - and are technically almost identical. The difference is visual and presentational.
+
+The **Onion Architecture** diagram shows concentric rings: the domain layer at the center, surrounded by the application layer, with infrastructure and UI on the outer rings. Dependencies flow inward only - outer layers depend on inner layers, but inner layers are unaware of outer ones. This is the dependency inversion principle applied at the architectural level.
+
+A common misconception from the onion diagram is that UI and data access components sit in the same outer ring, therefore they can directly interact. That is false. The layers describe the **direction of dependencies**, not groupings of components that can talk to each other.
+
+If you draw concentric circles around the components in a hexagonal architecture diagram, you get the same picture as the onion diagram. The core concepts are the same - only the visual representation and some naming conventions differ.
+
+---
+
+## Domain-Driven Design (DDD)
+
+DDD is a software development approach that concentrates on the domain model and domain logic. As Eric Evans put it in his book _Domain-Driven Design: Tackling Complexity in the Heart of Software_: the structure and language of the code should match that of the business domain.
+
+DDD is not a technology or a methodology. It is a set of principles and patterns that can be applied to any software project.
+
+### Ubiquitous Language
+
+The foundation of DDD. Words and phrases from the business domain are used directly in the codebase. This creates a shared language that connects developers to business experts - the same terms appear in conversations, documentation, and code. A rich domain model is built using this language to describe all objects and their interactions.
+
+### Strategic Design
+
+The high-level process for understanding and partitioning the domain. Key tools and techniques include:
+
+- **Domain Storytelling** - narrating how business processes work to surface the domain language
+- **Event Storming** - collaborative workshops to map domain events across a timeline
+- **Context Mapping** - defining how different parts of the system relate and communicate
+
+The goal is to identify the **core domain** and **subdomains**, and to define **bounded contexts** with explicit boundaries. A bounded context is a clear boundary within which a particular domain model applies - each feature folder in this codebase represents one.
+
+### Tactical Design - Building Blocks
+
+The concrete patterns used to express the domain model in code.
+
+#### Entities
+
+Objects with a **unique identifier** and a lifecycle. They can be modified over time, but their identity persists. Two entities with identical attributes are still different entities - for example, two alarms with the same name and severity are distinct alarms.
+
+#### Value Objects
+
+**Immutable** objects with no unique identifier. Equality is determined entirely by their attributes - two value objects with the same attributes are considered equal. In this codebase, `AlarmSeverity` is a value object.
+
+#### Aggregates
+
+A **cluster of objects** treated as a single unit, with one root entity (the aggregate root). The aggregate enforces that all objects within it remain in a valid and consistent state. It represents a **transactional consistency boundary** - all changes to objects inside the aggregate happen within a single transaction.
+
+#### Repositories
+
+Abstractions over the data access layer, used to **persist and retrieve aggregates**. The application layer works with aggregates through repository interfaces (ports) without any knowledge of the underlying storage implementation. This codebase already uses this pattern for alarms.
+
+#### Services
+
+Encapsulate **domain logic that doesn't belong to any specific entity or value object** - for example, a notification service triggered when a new alarm is created. Use sparingly: heavy reliance on services is a warning sign of an **anemic domain model** - an anti-pattern where the domain model contains no real business logic and is reduced to getters and setters.
+
+#### Factories
+
+Encapsulate the **creation of complex objects**, especially when construction involves validation, initialization, or multiple coordinated steps. Factories keep domain objects clean and focused on business logic by offloading creation complexity to dedicated classes.
+
+#### Domain Events
+
+Capture **domain-specific information about something that happened** in the past - a state change or action in the domain model. Events enable loose coupling, scalability, and eventual consistency. There are two types:
+
+- **Domain Events** - internal to the bounded context, used to react to changes within the same domain
+- **Integration Events** - cross-boundary events, used to communicate between bounded contexts or external systems
+
+---
+
 ## Folder Structure
 
 Code is organized by **feature** (bounded context), not by technical role. Everything related to a feature lives together.
@@ -51,7 +120,15 @@ export abstract class AlarmRepository {
 
 ## /domain
 
-The purest layer - no frameworks, no HTTP, no database. Contains domain **models**, **value objects**, **domain events**, and **factories**. Value objects are immutable and compared by value, not identity. This layer encodes business rules that never change regardless of how the app is delivered or where data is stored.
+The purest layer - no frameworks, no HTTP, no database. Directly maps to the DDD tactical building blocks:
+
+- **Entities** - domain models with identity and lifecycle
+- **Value Objects** - immutable, equality by attributes (e.g. `AlarmSeverity`)
+- **Aggregates** - clusters enforcing consistency boundaries
+- **Factories** - encapsulate complex object creation
+- **Domain Events** - record meaningful things that happened in the domain
+
+This layer encodes business rules that never change regardless of how the app is delivered or where data is stored.
 
 ## /infrastructure
 
@@ -102,3 +179,18 @@ REST controllers, DTOs with validation decorators, and HTTP-specific error handl
 ### /cli
 
 CLI commands and argument parsing. Same application layer underneath, different entry point. Useful for scripts, migrations, or admin tasks that share the same use cases as the HTTP layer.
+
+## ESLint Boundaries
+
+`eslint-plugin-boundaries` enforces the dependency rules at the import level. Violations are lint errors.
+
+Each layer may only import from:
+
+| Layer            | Allowed imports                                                  |
+| ---------------- | ---------------------------------------------------------------- |
+| `domain`         | `common`, same-feature `domain`                                  |
+| `application`    | `common`, same-feature `domain`, `application`                   |
+| `infrastructure` | `common`, same-feature `domain`, `application`, `infrastructure` |
+| `presenters`     | `common`, same-feature `domain`, `application`, `presenters`     |
+
+Cross-feature imports are also blocked - `alarms/application` cannot import from `users/domain`. Features communicate through the app module composition, not direct imports.
