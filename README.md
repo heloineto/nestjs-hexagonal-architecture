@@ -1,4 +1,6 @@
-# Hexagonal Architecture
+# Project Structure
+
+## Hexagonal Architecture
 
 You know the feeling - a "small" change to how data is stored cascades into controllers, services, tests, DTOs. Business logic leaks into HTTP handlers. A feature that should take an hour takes a day, because everything is tangled with everything else.
 
@@ -90,6 +92,8 @@ class OrmAlarmMapper {
 }
 ```
 
+Read-only adapters only need `toDomain`. Skip `toPersistence` if the feature never writes through that adapter.
+
 ### Swapping adapters
 
 All adapters implementing the same port export the same token. The application layer never knows which one it received - swapping infrastructure requires no domain or application code changes.
@@ -115,19 +119,6 @@ CLI commands and argument parsing. Same application layer underneath, different 
 ## /feature.module.ts
 
 `<feature>.module.ts` at feature root, above layers (intentional). **Composition root**: wires providers from all layers via Nest DI. Couples app + infra + presentation by design. Pragmatic compromise: pure hexagonal architecture would avoid one-file cross-layer coupling; Nest needs it. Root placement = visible, predictable, layers stay clean.
-
-## ESLint Boundaries
-
-`eslint-plugin-boundaries` enforces import rules.
-
-| Layer            | Allowed imports                 |
-| ---------------- | ------------------------------- |
-| `domain`         | `common`                        |
-| `application`    | `common`,`domain`               |
-| `infrastructure` | `common`,`domain`,`application` |
-| `presentation`   | `common`,`domain`,`application` |
-
-No cross-feature imports. Features compose via app module.
 
 ## DDD (Domain-Driven Design)
 
@@ -163,3 +154,22 @@ Capture **domain-specific information about something that happened** in the pas
 
 - **Domain Events** - internal to the bounded context, used to react to changes within the same domain
 - **Integration Events** - cross-boundary events, used to communicate between bounded contexts or external systems
+
+## Barrel Files
+
+**No barrel files inside features.** Use direct imports with `@/` path aliases.
+
+**Why not full barrel files?** The costs outweigh the benefits: extra `index.ts` files in every folder, hidden public APIs (`export *` hides what's actually exported), and worse IDE navigation ("go to definition" lands in the barrel instead of the source).
+
+## ESLint Boundaries
+
+`eslint-plugin-boundaries` enforces import rules.
+
+| Layer            | Allowed imports                 |
+| ---------------- | ------------------------------- |
+| `domain`         | `common`                        |
+| `application`    | `common`,`domain`               |
+| `infrastructure` | `common`,`domain`,`application` |
+| `presentation`   | `common`,`domain`,`application` |
+
+No cross-feature imports. Features compose via app module.
