@@ -19,14 +19,14 @@ Code is organized by **feature** (bounded context), not by technical role. Every
 
 ```
 /src
-├── /common                   # Shared types and interfaces used across features
-├── /core                     # Global infrastructure bootstrap (connections, providers)
-└── /<feature>                # One folder per bounded context
-    ├── /<feature>.module.ts   # Composition root - wires all layers together
-    ├── /application          # Use cases, commands, ports
-    ├── /domain               # Models, value objects, events, factories
-    ├── /infrastructure       # Adapters implementing the ports
-    └── /presentation         # Delivery layer - how the outside world talks to the app
+├── /common                     # Shared types and interfaces used across features
+├── /core                       # Global infrastructure bootstrap (connections, providers)
+└── /<feature>                  # One folder per bounded context
+    ├── /<feature>.module.ts    # Composition root - wires all layers together
+    ├── /application            # Use cases, commands, ports
+    ├── /domain                 # Models, value objects, events, factories
+    ├── /infrastructure         # Adapters implementing the ports
+    └── /presentation           # Delivery layer - how the outside world talks to the app
 ```
 
 ## /application
@@ -120,12 +120,12 @@ CLI commands and argument parsing. Same application layer underneath, different 
 
 `eslint-plugin-boundaries` enforces import rules.
 
-| Layer            | Allowed imports                                                  |
-| ---------------- | ---------------------------------------------------------------- |
-| `domain`         | `common`, same-feature `domain`                                  |
-| `application`    | `common`, same-feature `domain`, `application`                   |
-| `infrastructure` | `common`, same-feature `domain`, `application`, `infrastructure` |
-| `presentation`   | `common`, same-feature `domain`, `application`, `presentation`   |
+| Layer            | Allowed imports                 |
+| ---------------- | ------------------------------- |
+| `domain`         | `common`                        |
+| `application`    | `common`,`domain`               |
+| `infrastructure` | `common`,`domain`,`application` |
+| `presentation`   | `common`,`domain`,`application` |
 
 No cross-feature imports. Features compose via app module.
 
