@@ -1,14 +1,30 @@
 // @ts-check
 import eslint from '@eslint/js';
-import boundaries from 'eslint-plugin-boundaries';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import {
+  projectStructureParser,
+  projectStructurePlugin,
+} from 'eslint-plugin-project-structure';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import { defineConfig } from 'eslint/config';
+import { folderStructureConfig } from './project-structure.mjs';
+import { independentModulesConfig } from './project-structure.mjs';
 
 export default defineConfig(
   {
-    ignores: ['eslint.config.mjs'],
+    ignores: ['eslint.config.mjs', 'projectStructure.cache.json'],
+  },
+
+  // Folder structure: uses projectStructureParser to handle all file extensions
+  {
+    files: ['**'],
+    ignores: ['projectStructure.cache.json'],
+    languageOptions: { parser: projectStructureParser },
+    plugins: { 'project-structure': projectStructurePlugin },
+    rules: {
+      'project-structure/folder-structure': ['error', folderStructureConfig],
+    },
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
@@ -35,86 +51,12 @@ export default defineConfig(
     },
   },
   {
-    plugins: { boundaries },
-    settings: {
-      'import/resolver': {
-        typescript: {
-          alwaysTryTypes: true,
-        },
-      },
-      'boundaries/elements': [
-        // Shared utilities - no feature context
-        { type: 'common', pattern: 'common' },
-        { type: 'core', pattern: 'core' },
-        // Feature layers - capture the bounded context name
-        { type: 'domain', pattern: '*/domain', capture: ['feature'] },
-        { type: 'application', pattern: '*/application', capture: ['feature'] },
-        {
-          type: 'infrastructure',
-          pattern: '*/infrastructure',
-          capture: ['feature'],
-        },
-        {
-          type: 'presentation',
-          pattern: '*/presentation',
-          capture: ['feature'],
-        },
-      ],
-    },
+    files: ['**/*.ts', '**/*.js'],
+    plugins: { 'project-structure': projectStructurePlugin },
     rules: {
-      ...boundaries.configs.recommended.rules,
-      'boundaries/element-types': [
+      'project-structure/independent-modules': [
         'error',
-        {
-          // Deny all cross-layer imports by default; each layer explicitly allows what it needs
-          default: 'disallow',
-          rules: [
-            // common: self-contained, no outward dependencies
-            {
-              from: 'common',
-              allow: ['common'],
-            },
-            // core: bootstrap only, may use shared utilities
-            {
-              from: 'core',
-              allow: ['common'],
-            },
-            // domain: pure layer - no frameworks, no infrastructure, no transport details
-            {
-              from: 'domain',
-              allow: ['common', ['domain', { feature: '${from.feature}' }]],
-            },
-            // application: orchestrates use cases - depends inward on domain, defines ports
-            {
-              from: 'application',
-              allow: [
-                'common',
-                ['domain', { feature: '${from.feature}' }],
-                ['application', { feature: '${from.feature}' }],
-              ],
-            },
-            // infrastructure: implements ports - knows domain and application contracts, never presentation
-            {
-              from: 'infrastructure',
-              allow: [
-                'common',
-                ['domain', { feature: '${from.feature}' }],
-                ['application', { feature: '${from.feature}' }],
-                ['infrastructure', { feature: '${from.feature}' }],
-              ],
-            },
-            // presentation: delivery layer - converts transport input to commands, never touches infrastructure
-            {
-              from: 'presentation',
-              allow: [
-                'common',
-                ['domain', { feature: '${from.feature}' }],
-                ['application', { feature: '${from.feature}' }],
-                ['presentation', { feature: '${from.feature}' }],
-              ],
-            },
-          ],
-        },
+        independentModulesConfig,
       ],
     },
   },

@@ -46,6 +46,7 @@
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-boundaries": "^5.4.0",
     "eslint-plugin-prettier": "^5.2.2",
+    "eslint-plugin-project-structure": "^3.14.2",
     "globals": "^16.0.0",
     "jest": "^30.0.0",
     "prettier": "^3.4.2",

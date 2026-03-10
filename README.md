@@ -19,13 +19,14 @@ Code is organized by **feature** (bounded context), not by technical role. Every
 
 ```
 /src
-├── /common               # Shared types and interfaces used across features
-├── /core                 # Global infrastructure bootstrap (connections, providers)
-└── /<feature>            # One folder per bounded context
-    ├── /application      # Use cases, commands, ports
-    ├── /domain           # Models, value objects, events, factories
-    ├── /infrastructure   # Adapters implementing the ports
-    └── /presentation       # Delivery layer - how the outside world talks to the app
+├── /common                   # Shared types and interfaces used across features
+├── /core                     # Global infrastructure bootstrap (connections, providers)
+└── /<feature>                # One folder per bounded context
+    ├── /<feature>.module.ts   # Composition root - wires all layers together
+    ├── /application          # Use cases, commands, ports
+    ├── /domain               # Models, value objects, events, factories
+    ├── /infrastructure       # Adapters implementing the ports
+    └── /presentation         # Delivery layer - how the outside world talks to the app
 ```
 
 ## /application
@@ -110,6 +111,10 @@ REST controllers, DTOs with validation decorators, and HTTP-specific error handl
 ### /cli
 
 CLI commands and argument parsing. Same application layer underneath, different entry point. Useful for scripts, migrations, or admin tasks that share the same use cases as the HTTP layer.
+
+## /feature.module.ts
+
+`<feature>.module.ts` at feature root, above layers (intentional). **Composition root**: wires providers from all layers via Nest DI. Couples app + infra + presentation by design. Pragmatic compromise: pure hexagonal architecture would avoid one-file cross-layer coupling; Nest needs it. Root placement = visible, predictable, layers stay clean.
 
 ## ESLint Boundaries
 
