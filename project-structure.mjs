@@ -64,8 +64,8 @@ export const folderStructureConfig = createFolderStructure({
         { name: '{kebab-case}.service.ts' },
         { name: '{kebab-case}.service.spec.ts' },
         {
-          name: 'commands',
-          children: [{ name: '{kebab-case}.command.ts' }],
+          name: 'use-cases',
+          children: [{ name: '{kebab-case}.use-case.ts' }],
         },
         {
           name: 'ports',
@@ -88,18 +88,18 @@ export const folderStructureConfig = createFolderStructure({
     persistence_driver_folder: {
       name: '{kebab-case}', // orm, in-memory, etc.
       children: [
-        { name: '{folder-name}-persistence.module.ts' }, // orm-persistence.module.ts
+        { name: '(orm|in-memory)-persistence.module.ts' }, // orm-persistence.module.ts
         {
           name: 'entities',
-          children: [{ name: '{kebab-case}.entity.ts' }],
+          children: [{ name: '(orm|in-memory)-{kebab-case}.entity.ts' }],
         },
         {
           name: 'mappers',
-          children: [{ name: '{kebab-case}.mapper.ts' }],
+          children: [{ name: '(orm|in-memory)-{kebab-case}.mapper.ts' }],
         },
         {
           name: 'repositories',
-          children: [{ name: '{kebab-case}.repository.ts' }],
+          children: [{ name: '(orm|in-memory)-{kebab-case}.repository.ts' }],
         },
       ],
     },

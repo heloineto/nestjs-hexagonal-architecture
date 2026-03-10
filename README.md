@@ -31,11 +31,11 @@ Code is organized by **feature** (bounded context), not by technical role. Every
 
 ## /application
 
-Orchestrates use cases. Holds services, command/query handlers, and app-specific logic. Never depends on infrastructure or presentation details. Instead, it defines **ports** that describe what it needs, and expects the infrastructure layer to fulfill them.
+Orchestrates use cases. Each use case is a single class in its own file, which also exports its input DTO. Never depends on infrastructure or presentation details. Instead, it defines **ports** that describe what it needs, and expects the infrastructure layer to fulfill them.
 
 ```
 /application
-    /commands   # Data contracts between presentation and application logic
+    /use-cases  # One file per use case. Each file exports the use case class and its input DTO
     /ports      # Abstractions over external dependencies (repositories, brokers, etc.)
 ```
 
@@ -69,14 +69,14 @@ Implements the ports via **adapters**. Multiple adapters can implement the same 
 ```
 /infrastructure
     /persistence
-        /<driver-a>     # e.g. TypeORM adapter
-            /entities
-            /repositories
-            /mappers
-        /<driver-b>     # e.g. in-memory adapter
-            /entities
-            /repositories
-            /mappers
+        /<driver-a>     # e.g. orm
+            /entities       # orm-<feature>.entity.ts
+            /repositories   # orm-<feature>.repository.ts
+            /mappers        # orm-<feature>.mapper.ts
+        /<driver-b>     # e.g. in-memory
+            /entities       # in-memory-<feature>.entity.ts
+            /repositories   # in-memory-<feature>.repository.ts
+            /mappers        # in-memory-<feature>.mapper.ts
 ```
 
 ### Mappers
@@ -84,9 +84,9 @@ Implements the ports via **adapters**. Multiple adapters can implement the same 
 Each adapter owns a mapper that converts between its persistence model and the domain model. This keeps domain objects free of ORM annotations or storage concerns.
 
 ```ts
-class AlarmMapper {
-  static toDomain(entity: AlarmEntity): Alarm { ... }
-  static toPersistence(alarm: Alarm): AlarmEntity { ... }
+class OrmAlarmMapper {
+  static toDomain(entity: OrmAlarmEntity): Alarm { ... }
+  static toPersistence(alarm: Alarm): OrmAlarmEntity { ... }
 }
 ```
 
@@ -96,7 +96,7 @@ All adapters implementing the same port export the same token. The application l
 
 ## /presentation
 
-The delivery layer - how the outside world talks to the application. Organized by transport. DTOs belong here, not in application, because they represent the shape of data for a specific transport. A gRPC transport would have its own DTOs in its own subfolder.
+The delivery layer - how the outside world talks to the application. Organized by transport. Each transport folder contains controllers and transport-specific wiring. DTOs live in the use-case files they belong to, not here.
 
 ```
 /presentation
@@ -106,7 +106,7 @@ The delivery layer - how the outside world talks to the application. Organized b
 
 ### /http
 
-REST controllers, DTOs with validation decorators, and HTTP-specific error handling. DTOs are transport-specific - they shape data for HTTP and live here, not in the application layer.
+REST controllers and HTTP-specific error handling. Controllers call use cases directly and pass the request body as the use-case DTO.
 
 ### /cli
 

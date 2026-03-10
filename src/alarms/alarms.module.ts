@@ -1,11 +1,12 @@
 import { DynamicModule, Module, Type } from '@nestjs/common';
 import { AlarmsController } from './presentation/http/alarms.controller';
-import { AlarmsService } from './application/alarms.service';
 import { AlarmFactory } from './domain/factories/alarm.factory';
+import { CreateAlarmUseCase } from './application/use-cases/create-alarm.use-case';
+import { ListAlarmsUseCase } from './application/use-cases/list-alarms.use-case';
 
 @Module({
   controllers: [AlarmsController],
-  providers: [AlarmsService, AlarmFactory],
+  providers: [CreateAlarmUseCase, ListAlarmsUseCase, AlarmFactory],
 })
 export class AlarmsModule {
   static withInfrastructure(infrastructureModule: Type | DynamicModule) {

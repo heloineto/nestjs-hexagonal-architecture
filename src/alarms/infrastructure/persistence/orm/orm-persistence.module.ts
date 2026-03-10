@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AlarmEntity } from './entities/alarm.entity';
+import { OrmAlarmEntity } from './entities/orm-alarm.entity';
 import { AlarmRepository } from 'src/alarms/application/ports/alarm.repository';
-import { OrmAlarmRepository } from './repositories/alarm.repository';
+import { OrmAlarmRepository } from './repositories/orm-alarm.repository';
 
 @Module({
   providers: [
@@ -11,7 +11,7 @@ import { OrmAlarmRepository } from './repositories/alarm.repository';
       useClass: OrmAlarmRepository,
     },
   ],
-  imports: [TypeOrmModule.forFeature([AlarmEntity])],
+  imports: [TypeOrmModule.forFeature([OrmAlarmEntity])],
   exports: [AlarmRepository],
 })
 export class OrmPersistenceModule {}

@@ -1,21 +1,24 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
-import { AlarmsService } from '../../application/alarms.service';
-import { CreateAlarmDto } from './dto/create-alarm.dto';
-import { CreateAlarmCommand } from 'src/alarms/application/commands/create-alarm.command';
+import {
+  CreateAlarmDto,
+  CreateAlarmUseCase,
+} from 'src/alarms/application/use-cases/create-alarm.use-case';
+import { ListAlarmsUseCase } from 'src/alarms/application/use-cases/list-alarms.use-case';
 
 @Controller('alarms')
 export class AlarmsController {
-  constructor(private readonly alarmsService: AlarmsService) {}
+  constructor(
+    private readonly createAlarmUseCase: CreateAlarmUseCase,
+    private readonly listAlarmsUseCase: ListAlarmsUseCase,
+  ) {}
 
   @Post()
   create(@Body() createAlarmDto: CreateAlarmDto) {
-    return this.alarmsService.create(
-      new CreateAlarmCommand(createAlarmDto.name, createAlarmDto.severity),
-    );
+    return this.createAlarmUseCase.execute(createAlarmDto);
   }
 
   @Get()
   findAll() {
-    return this.alarmsService.findAll();
+    return this.listAlarmsUseCase.execute();
   }
 }

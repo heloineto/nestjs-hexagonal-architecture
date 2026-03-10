@@ -2,26 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { AlarmRepository } from 'src/alarms/application/ports/alarm.repository';
 import { Alarm } from 'src/alarms/domain/alarm';
 import { Repository } from 'typeorm';
-import { AlarmEntity } from '../entities/alarm.entity';
+import { OrmAlarmEntity } from '../entities/orm-alarm.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AlarmMapper } from '../mappers/alarm.mapper';
+import { OrmAlarmMapper } from '../mappers/orm-alarm.mapper';
 
 @Injectable()
 export class OrmAlarmRepository implements AlarmRepository {
   constructor(
-    @InjectRepository(AlarmEntity)
-    private readonly alarmRepository: Repository<AlarmEntity>,
+    @InjectRepository(OrmAlarmEntity)
+    private readonly alarmRepository: Repository<OrmAlarmEntity>,
   ) {}
 
   async findAll(): Promise<Alarm[]> {
     const entities = await this.alarmRepository.find();
-    return entities.map((item) => AlarmMapper.toDomain(item));
+    return entities.map((item) => OrmAlarmMapper.toDomain(item));
   }
 
   async save(alarm: Alarm): Promise<Alarm> {
-    const persistenceModel = AlarmMapper.toPersistence(alarm);
+    const persistenceModel = OrmAlarmMapper.toPersistence(alarm);
     const newEntity = await this.alarmRepository.save(persistenceModel);
 
-    return AlarmMapper.toDomain(newEntity);
+    return OrmAlarmMapper.toDomain(newEntity);
   }
 }

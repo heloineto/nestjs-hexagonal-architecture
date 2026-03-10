@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AlarmRepository } from 'src/alarms/application/ports/alarm.repository';
-import { InMemoryAlarmRepository } from './repositories/alarm.repository';
+import { InMemoryAlarmRepository } from './repositories/in-memory-alarm.repository';
 
 @Module({
   providers: [

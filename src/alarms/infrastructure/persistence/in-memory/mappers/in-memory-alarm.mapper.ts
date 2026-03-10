@@ -1,9 +1,9 @@
 import { Alarm } from 'src/alarms/domain/alarm';
-import { AlarmEntity } from '../entities/alarm.entity';
+import { InMemoryAlarmEntity } from '../entities/in-memory-alarm.entity';
 import { AlarmSeverity } from 'src/alarms/domain/value-objects/alarm-severity';
 
-export class AlarmMapper {
-  static toDomain(alarmEntity: AlarmEntity): Alarm {
+export class InMemoryAlarmMapper {
+  static toDomain(alarmEntity: InMemoryAlarmEntity): Alarm {
     const alarmSeverity = new AlarmSeverity(
       alarmEntity.severity as 'low' | 'medium' | 'high',
     );
@@ -17,8 +17,8 @@ export class AlarmMapper {
     return alarmModel;
   }
 
-  static toPersistence(alarm: Alarm): AlarmEntity {
-    const alarmEntity = new AlarmEntity();
+  static toPersistence(alarm: Alarm): InMemoryAlarmEntity {
+    const alarmEntity = new InMemoryAlarmEntity();
     alarmEntity.id = alarm.id;
     alarmEntity.name = alarm.name;
     alarmEntity.severity = alarm.severity.value;
