@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/require-await */
 import { Injectable } from '@nestjs/common';
-import { AlarmRepository } from 'src/alarms/application/ports/alarm.repository';
-import { Alarm } from 'src/alarms/domain/alarm';
+import { AlarmRepository } from '@/alarms/application/ports/alarm.repository';
+import { Alarm } from '@/alarms/domain/alarm';
 import { InMemoryAlarmEntity } from '../entities/in-memory-alarm.entity';
 import { InMemoryAlarmMapper } from '../mappers/in-memory-alarm.mapper';
 
@@ -11,12 +10,12 @@ export class InMemoryAlarmRepository implements AlarmRepository {
 
   constructor() {}
 
-  async findAll(): Promise<Alarm[]> {
+  findAll(): Alarm[] {
     const entities = Array.from(this.alarms.values());
     return entities.map((item) => InMemoryAlarmMapper.toDomain(item));
   }
 
-  async save(alarm: Alarm): Promise<Alarm> {
+  save(alarm: Alarm): Alarm {
     const persistenceModel = InMemoryAlarmMapper.toPersistence(alarm);
     this.alarms.set(persistenceModel.id, persistenceModel);
 

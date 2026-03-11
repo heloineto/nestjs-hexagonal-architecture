@@ -16,7 +16,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
-      '@pkg': resolve(__dirname, './packages'),
     },
   },
 });

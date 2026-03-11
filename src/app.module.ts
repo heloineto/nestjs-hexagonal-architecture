@@ -16,7 +16,7 @@ export class AppModule {
       imports: [
         CoreModule.forRoot(options),
         AlarmsModule.withInfrastructure(
-          AlarmsInfrastructureModule.use(options.driver),
+          AlarmsInfrastructureModule.use(options.driver)
         ),
       ],
     };

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrmAlarmEntity } from './entities/orm-alarm.entity';
-import { AlarmRepository } from 'src/alarms/application/ports/alarm.repository';
+import { AlarmRepository } from '@/alarms/application/ports/alarm.repository';
 import { OrmAlarmRepository } from './repositories/orm-alarm.repository';
 
 @Module({

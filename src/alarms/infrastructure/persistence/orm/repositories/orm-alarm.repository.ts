@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AlarmRepository } from 'src/alarms/application/ports/alarm.repository';
-import { Alarm } from 'src/alarms/domain/alarm';
+import { AlarmRepository } from '@/alarms/application/ports/alarm.repository';
+import { Alarm } from '@/alarms/domain/alarm';
 import { Repository } from 'typeorm';
 import { OrmAlarmEntity } from '../entities/orm-alarm.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,7 +10,7 @@ import { OrmAlarmMapper } from '../mappers/orm-alarm.mapper';
 export class OrmAlarmRepository implements AlarmRepository {
   constructor(
     @InjectRepository(OrmAlarmEntity)
-    private readonly alarmRepository: Repository<OrmAlarmEntity>,
+    private readonly alarmRepository: Repository<OrmAlarmEntity>
   ) {}
 
   async findAll(): Promise<Alarm[]> {

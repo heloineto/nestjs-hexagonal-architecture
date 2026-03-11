@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { CreateAlarmDto } from '../dtos/create-alarm.dto';
 import { AlarmRepository } from '../ports/alarm.repository';
-import { Alarm } from 'src/alarms/domain/alarm';
-import { AlarmSeverity } from 'src/alarms/domain/value-objects/alarm-severity';
+import { Alarm } from '@/alarms/domain/alarm';
+import { AlarmSeverity } from '@/alarms/domain/value-objects/alarm-severity';
 import { v4 as uuidv4 } from 'uuid';
-
-export class CreateAlarmDto {
-  name: string;
-  severity: string;
-}
 
 @Injectable()
 export class CreateAlarmUseCase {
@@ -17,7 +13,7 @@ export class CreateAlarmUseCase {
     const alarm = new Alarm(
       uuidv4(),
       createAlarmDto.name,
-      new AlarmSeverity(createAlarmDto.severity as 'low' | 'medium' | 'high'),
+      new AlarmSeverity(createAlarmDto.severity as 'low' | 'medium' | 'high')
     );
 
     return this.alarmRepository.save(alarm);

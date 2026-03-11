@@ -4,6 +4,6 @@ export class Alarm {
   constructor(
     public readonly id: string,
     public readonly name: string,
-    public readonly severity: AlarmSeverity,
+    public readonly severity: AlarmSeverity
   ) {}
 }
