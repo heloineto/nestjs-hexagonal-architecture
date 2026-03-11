@@ -40,7 +40,13 @@ export const folderStructureConfig = createFolderStructure({
         { ruleId: 'application_layer' },
         { ruleId: 'infrastructure_layer' },
         { ruleId: 'presentation_layer' },
+        { ruleId: 'test_layer' },
       ],
+    },
+
+    test_layer: {
+      name: 'test',
+      children: [{ name: '{kebab-case}.mock.ts' }],
     },
 
     domain_layer: {
@@ -65,7 +71,10 @@ export const folderStructureConfig = createFolderStructure({
         { name: '{kebab-case}.service.spec.ts' },
         {
           name: 'use-cases',
-          children: [{ name: '{kebab-case}.use-case.ts' }],
+          children: [
+            { name: '{kebab-case}.use-case.ts' },
+            { name: '{kebab-case}.use-case.spec.ts' },
+          ],
         },
         {
           name: 'ports',
@@ -160,10 +169,10 @@ export const independentModulesConfig = createIndependentModules({
         'domain/ can only import from common/ and same-feature domain/.',
     },
 
-    // use-case: isolated unit - cannot import from sibling use cases
+    // use-case (implementation): isolated unit - cannot import from other use-case files
     {
       name: 'use-case',
-      pattern: 'src/*/application/use-cases/**',
+      pattern: 'src/*/application/use-cases/*.use-case.ts',
       allowImportsFrom: [
         'src/common/**',
         '{family_2}/domain/**', // same-feature domain
@@ -172,6 +181,20 @@ export const independentModulesConfig = createIndependentModules({
       ],
       errorMessage:
         'use-cases/ cannot import from other use-cases. Extract shared schemas/types to application/dtos/.',
+    },
+
+    // use-case (test): spec files may import the use-case under test
+    {
+      name: 'use-case-spec',
+      pattern: 'src/*/application/use-cases/*.use-case.spec.ts',
+      allowImportsFrom: [
+        'src/common/**',
+        '{family_2}/domain/**',
+        '{family_2}/test/**',
+        '{family_3}/**', // allow importing use-case under test
+      ],
+      errorMessage:
+        'use-case spec files can only import from common/, domain/, ports/, dtos/ and same-feature use-cases/.',
     },
 
     // application: orchestrates use cases, depends inward on domain, defines ports
