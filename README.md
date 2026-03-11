@@ -24,7 +24,7 @@ Code is organized by **feature** (bounded context), not by technical role. Every
 ├── /common                     # Shared types and interfaces used across features
 ├── /core                       # Global infrastructure bootstrap (connections, providers)
 └── /<feature>                  # One folder per bounded context
-    ├── /<feature>.module.ts    # Composition root - wires all layers together
+    ├── <feature>.module.ts     # Composition root - wires all layers together
     ├── /application            # Use cases, commands, ports
     ├── /domain                 # Models, value objects, events, factories
     ├── /infrastructure         # Adapters implementing the ports
@@ -79,16 +79,17 @@ Below is an example using driver `orm` and `in-memory`:
 
 ```
 /infrastructure
-├── /persistence
+├── <feature>-infrastructure.module.ts       # Ties all persistence modules together
+└── /persistence
     ├── /orm
-    │   ├── /entities       # orm-<feature>.entity.ts
-    │   ├── /repositories   # orm-<feature>.repository.ts
-    │   ├── /mappers        # orm-<feature>.mapper.ts
+    │   ├── /entities                        # orm-<feature>.entity.ts
+    │   ├── /repositories                    # orm-<feature>.repository.ts
+    │   ├── /mappers                         # orm-<feature>.mapper.ts
     │   └── orm-persistence.module.ts
     └── /in-memory
-        ├── /entities       # in-memory-<feature>.entity.ts
-        ├── /repositories   # in-memory-<feature>.repository.ts
-        ├── /mappers        # in-memory-<feature>.mapper.ts
+        ├── /entities                        # in-memory-<feature>.entity.ts
+        ├── /repositories                    # in-memory-<feature>.repository.ts
+        ├── /mappers                         # in-memory-<feature>.mapper.ts
         └── in-memory-persistence.module.ts
 ```
 
