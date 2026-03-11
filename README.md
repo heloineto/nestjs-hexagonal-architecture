@@ -68,18 +68,24 @@ This layer encodes business rules that never change regardless of how the app is
 
 Implements the ports via **adapters**. Multiple adapters can implement the same port - for example, one backed by a real database and one in-memory for local dev or testing. Each adapter is self-contained with its own entities, repositories, and mappers.
 
+Below is an example using drivers `orm` and `in-memory`:
+
 ```
 /infrastructure
     /persistence
-        /<driver-a>     # e.g. orm
+        /orm
             /entities       # orm-<feature>.entity.ts
             /repositories   # orm-<feature>.repository.ts
             /mappers        # orm-<feature>.mapper.ts
-        /<driver-b>     # e.g. in-memory
+            orm-persistence.module.ts
+        /in-memory
             /entities       # in-memory-<feature>.entity.ts
             /repositories   # in-memory-<feature>.repository.ts
             /mappers        # in-memory-<feature>.mapper.ts
+            in-memory-persistence.module.ts
 ```
+
+Each driver owns a NestJS module that registers its entities and binds the port to the adapter. The feature module imports this persistence module - **never `TypeOrmModule.forFeature` directly in the feature module**.
 
 ### Mappers
 
@@ -93,6 +99,18 @@ class OrmAlarmMapper {
 ```
 
 Read-only adapters only need `toDomain`. Skip `toPersistence` if the feature never writes through that adapter.
+
+### Implementing ports
+
+Adapters: `implements` port, never `extends`. Avoids super() and coupling; abstract class still works as DI token.
+
+```ts
+@Injectable()
+export class OrmAlarmRepository implements AlarmRepository {
+  constructor(...) {}
+  // ...
+}
+```
 
 ### Swapping adapters
 
