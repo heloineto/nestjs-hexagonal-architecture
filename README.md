@@ -37,9 +37,9 @@ Orchestrates use cases. Each use case is a single class in its own file, which a
 
 ```
 /application
-    /use-cases  # One file per use case. Each file exports the use case class and its input DTO
-    /ports      # Abstractions over external dependencies (repositories, brokers, etc.)
-    /dtos       # Shared DTOs/schemas reused across multiple use cases
+├── /use-cases    # One file per use case. Each file exports the use case class and its input DTO
+├── /ports        # Abstractions over external dependencies (repositories, brokers, etc.)
+└── /dtos         # Shared DTOs/schemas reused across multiple use cases
 ```
 
 ### Use cases
@@ -79,17 +79,17 @@ Below is an example using driver `orm` and `in-memory`:
 
 ```
 /infrastructure
-    /persistence
-        /orm
-            /entities       # orm-<feature>.entity.ts
-            /repositories   # orm-<feature>.repository.ts
-            /mappers        # orm-<feature>.mapper.ts
-            orm-persistence.module.ts
-        /in-memory
-            /entities       # in-memory-<feature>.entity.ts
-            /repositories   # in-memory-<feature>.repository.ts
-            /mappers        # in-memory-<feature>.mapper.ts
-            in-memory-persistence.module.ts
+├── /persistence
+    ├── /orm
+    │   ├── /entities       # orm-<feature>.entity.ts
+    │   ├── /repositories   # orm-<feature>.repository.ts
+    │   ├── /mappers        # orm-<feature>.mapper.ts
+    │   └── orm-persistence.module.ts
+    └── /in-memory
+        ├── /entities       # in-memory-<feature>.entity.ts
+        ├── /repositories   # in-memory-<feature>.repository.ts
+        ├── /mappers        # in-memory-<feature>.mapper.ts
+        └── in-memory-persistence.module.ts
 ```
 
 Each driver owns a NestJS module that registers its entities and binds the port to the adapter. The feature module imports this persistence module - **never `TypeOrmModule.forFeature` directly in the feature module**.
@@ -131,8 +131,8 @@ The delivery layer - how the outside world talks to the application. Organized b
 
 ```
 /presentation
-    /http   # REST controllers and DTOs with validation decorators
-    /cli    # CLI commands and argument parsing
+├── /http    # REST controllers and DTOs with validation decorators
+└── /cli     # CLI commands and argument parsing
 ```
 
 ### /http
@@ -200,3 +200,14 @@ Capture **domain-specific information about something that happened** in the pas
 | `presentation`   | `common`,`domain`,`application` |
 
 No cross-feature imports. Features compose via app module.
+
+## Testing
+
+```
+/<feature>
+├── /test
+│   └── <feature>.mock.ts         # Factory for building domain objects in tests
+└── /use-cases
+    ├── <name>.use-case.ts
+    └── <name>.use-case.spec.ts   # Use case unit tests. co-located.
+```
