@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ApplicationBootstrapOptions } from 'src/common/interfaces/application-bootstrap-options.interface';
+import { ApplicationBootstrapOptions } from '@/common/interfaces/application-bootstrap-options.interface';
 
 @Module({})
 export class CoreModule {

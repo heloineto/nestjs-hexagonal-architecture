@@ -1,0 +1,22 @@
+import { resolve } from 'node:path';
+import swc from 'unplugin-swc';
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    root: './',
+    exclude: ['dist', 'node_modules'],
+  },
+  plugins: [
+    swc.vite({
+      module: { type: 'es6' },
+    }),
+  ],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@pkg': resolve(__dirname, './packages'),
+    },
+  },
+});
