@@ -71,6 +71,10 @@ export const folderStructureConfig = createFolderStructure({
           name: 'ports',
           children: [{ name: '{kebab-case}.repository.ts' }],
         },
+        {
+          name: 'dtos',
+          children: [{ name: '{kebab-case}.dto.ts' }],
+        },
       ],
     },
 
@@ -154,6 +158,20 @@ export const independentModulesConfig = createIndependentModules({
       ],
       errorMessage:
         'domain/ can only import from common/ and same-feature domain/.',
+    },
+
+    // use-case: isolated unit - cannot import from sibling use cases
+    {
+      name: 'use-case',
+      pattern: 'src/*/application/use-cases/**',
+      allowImportsFrom: [
+        'src/common/**',
+        '{family_2}/domain/**', // same-feature domain
+        '{family_3}/ports/**', // same-feature application ports
+        '{family_3}/dtos/**', // same-feature application dtos (shared schemas)
+      ],
+      errorMessage:
+        'use-cases/ cannot import from other use-cases. Extract shared schemas/types to application/dtos/.',
     },
 
     // application: orchestrates use cases, depends inward on domain, defines ports

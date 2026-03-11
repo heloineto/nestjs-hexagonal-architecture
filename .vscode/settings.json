@@ -4,6 +4,7 @@
     "claude",
     "Cqrs",
     "dotenv",
+    "dtos",
     "nullable",
     "pids",
     "postgres",

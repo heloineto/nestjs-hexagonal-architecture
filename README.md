@@ -39,7 +39,14 @@ Orchestrates use cases. Each use case is a single class in its own file, which a
 /application
     /use-cases  # One file per use case. Each file exports the use case class and its input DTO
     /ports      # Abstractions over external dependencies (repositories, brokers, etc.)
+    /dtos       # Shared DTOs/schemas reused across multiple use cases
 ```
+
+### Use cases
+
+A use case is one thing the system can do - a single, named operation from the user's perspective (`FindApoiadores`, `CreateEmenda`, `RemoveApoiador`). It receives input, calls ports, and returns output. No HTTP, no SQL, no framework noise.
+
+**Use cases must never import from other use case files.** If a schema or DTO is needed by more than one use case, extract it to `/application/dtos` and import from there.
 
 ### Ports
 
@@ -68,7 +75,7 @@ This layer encodes business rules that never change regardless of how the app is
 
 Implements the ports via **adapters**. Multiple adapters can implement the same port - for example, one backed by a real database and one in-memory for local dev or testing. Each adapter is self-contained with its own entities, repositories, and mappers.
 
-Below is an example using drivers `orm` and `in-memory`:
+Below is an example using driver `orm` and `in-memory`:
 
 ```
 /infrastructure
@@ -89,7 +96,7 @@ Each driver owns a NestJS module that registers its entities and binds the port 
 
 ### Mappers
 
-Each adapter owns a mapper that converts between its persistence model and the domain model. This keeps domain objects free of ORM annotations or storage concerns.
+Each adapter owns a mapper that converts between its persistence model and the domain model.
 
 ```ts
 class OrmAlarmMapper {
@@ -99,6 +106,8 @@ class OrmAlarmMapper {
 ```
 
 Read-only adapters only need `toDomain`. Skip `toPersistence` if the feature never writes through that adapter.
+
+**`toDomain`:** Prefer `return entity` when ORM matches domain; TypeScript enforces return type (mismatches = compile errors). Map field-by-field only when domain diverges (renamed/computed/transformed fields).
 
 ### Implementing ports
 
